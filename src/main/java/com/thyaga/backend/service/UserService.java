@@ -7,6 +7,7 @@ import com.thyaga.backend.entity.User;
 import com.thyaga.backend.exceptions.ConflictException;
 import com.thyaga.backend.exceptions.NotFoundException;
 import com.thyaga.backend.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,9 +19,11 @@ import java.util.UUID;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public UserResponse createUser(CreateUserRequest request) {
@@ -30,7 +33,7 @@ public class UserService {
 
         User user = new User();
         user.setEmail(request.email());
-        user.setPassword(request.password());
+        user.setPassword(passwordEncoder.encode(request.password()));
 
         return UserResponse.from(userRepository.save(user));
     }
@@ -61,7 +64,7 @@ public class UserService {
         }
 
         if (request.password() != null) {
-            user.setPassword(request.password());
+            user.setPassword(passwordEncoder.encode(request.password()));
         }
 
         return UserResponse.from(userRepository.save(user));
