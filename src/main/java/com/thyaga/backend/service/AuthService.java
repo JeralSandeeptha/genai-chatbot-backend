@@ -27,19 +27,22 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final TokenCookieService tokenCookieService;
+    private final TokenInvalidationService tokenInvalidationService;
 
     public AuthService(
             UserRepository userRepository,
             RefreshTokenRepository refreshTokenRepository,
             PasswordEncoder passwordEncoder,
             JwtService jwtService,
-            TokenCookieService tokenCookieService
+            TokenCookieService tokenCookieService,
+            TokenInvalidationService tokenInvalidationService
     ) {
         this.userRepository = userRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.tokenCookieService = tokenCookieService;
+        this.tokenInvalidationService = tokenInvalidationService;
     }
 
     public AuthResponse login(LoginRequest request, HttpServletResponse response) {
@@ -65,6 +68,10 @@ public class AuthService {
         RefreshToken storedToken = refreshTokenRepository.findByTokenAndRevokedFalse(refreshTokenValue)
                 .orElseThrow(() -> new UnauthorizedException("Refresh token is invalid or expired"));
 
+        if (tokenInvalidationService.isTokenRevoked(refreshTokenValue)) {
+            throw new UnauthorizedException("Refresh token is invalid or expired");
+        }
+
         if (storedToken.getExpiresAt().isBefore(LocalDateTime.now())) {
             storedToken.setRevoked(true);
             refreshTokenRepository.save(storedToken);
@@ -77,15 +84,9 @@ public class AuthService {
         return issueTokens(storedToken.getUser(), response);
     }
 
-    public void logout(String refreshTokenValue, HttpServletResponse response) {
-        if (refreshTokenValue != null && !refreshTokenValue.isBlank()) {
-            refreshTokenRepository.findByTokenAndRevokedFalse(refreshTokenValue)
-                    .ifPresent(token -> {
-                        token.setRevoked(true);
-                        refreshTokenRepository.save(token);
-                    });
-        }
-
+    public void logout(String accessToken, String refreshToken, HttpServletResponse response) {
+        tokenInvalidationService.invalidateAccessToken(accessToken);
+        tokenInvalidationService.invalidateRefreshToken(refreshToken);
         tokenCookieService.clearTokenCookies(response);
     }
 

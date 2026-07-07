@@ -92,12 +92,16 @@ public class AuthController {
     ) {
         log.info("POST /api/v1/auth/logout - logging out user");
         try {
+            String accessToken = tokenCookieService.extractToken(
+                    request.getCookies(),
+                    TokenCookieService.ACCESS_TOKEN_COOKIE
+            );
             String refreshToken = tokenCookieService.extractToken(
                     request.getCookies(),
                     TokenCookieService.REFRESH_TOKEN_COOKIE
             );
 
-            authService.logout(refreshToken, response);
+            authService.logout(accessToken, refreshToken, response);
 
             HashMap<String, Object> responseBody = new HashMap<>();
             responseBody.put("data", null);

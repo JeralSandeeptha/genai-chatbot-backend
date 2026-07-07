@@ -1,5 +1,6 @@
 package com.thyaga.backend.security;
 
+import com.thyaga.backend.service.TokenInvalidationService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -21,10 +22,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final TokenCookieService tokenCookieService;
+    private final TokenInvalidationService tokenInvalidationService;
 
-    public JwtAuthenticationFilter(JwtService jwtService, TokenCookieService tokenCookieService) {
+    public JwtAuthenticationFilter(
+            JwtService jwtService,
+            TokenCookieService tokenCookieService,
+            TokenInvalidationService tokenInvalidationService
+    ) {
         this.jwtService = jwtService;
         this.tokenCookieService = tokenCookieService;
+        this.tokenInvalidationService = tokenInvalidationService;
     }
 
     @Override
@@ -56,6 +63,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (!jwtService.isTokenValid(accessToken) || !jwtService.isAccessToken(accessToken)) {
             sendUnauthorized(response, "Access token is invalid or expired");
+            return;
+        }
+
+        if (tokenInvalidationService.isTokenRevoked(accessToken)) {
+            sendUnauthorized(response, "Access token has been revoked");
             return;
         }
 
