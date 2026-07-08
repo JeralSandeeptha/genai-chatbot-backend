@@ -35,7 +35,7 @@ public class UserService {
         user.setEmail(request.email());
         user.setPassword(passwordEncoder.encode(request.password()));
 
-        return UserResponse.from(userRepository.save(user));
+        return UserResponse.from(userRepository.saveAndFlush(user));
     }
 
     @Transactional(readOnly = true)

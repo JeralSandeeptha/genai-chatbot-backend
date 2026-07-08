@@ -1,9 +1,10 @@
 services:
-  postgres:
-    image: 'postgres:latest'
+  genai-postgres:
+    container_name: genai_postgres_container
+    image: postgres:15
     environment:
-      - 'POSTGRES_DB=mydatabase'
-      - 'POSTGRES_PASSWORD=secret'
-      - 'POSTGRES_USER=myuser'
+      - 'POSTGRES_DB=genaidb'
+      - 'POSTGRES_PASSWORD=1234'
+      - 'POSTGRES_USER=jeral'
     ports:
-      - '5432'
+      - "5440:5432"
