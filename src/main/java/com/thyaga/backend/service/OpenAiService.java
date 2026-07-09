@@ -71,11 +71,12 @@ public class OpenAiService {
                 textPart.put("text", text);
             }
 
-            if (msg.imageData() != null && !msg.imageData().isBlank()) {
+            String imageData = normalizeSupportedImageData(msg.imageData());
+            if (imageData != null) {
                 ObjectNode imgPart = content.addObject();
                 imgPart.put("type", "input_image");
                 // imageData is typically a data URL from the browser
-                imgPart.put("image_url", msg.imageData());
+                imgPart.put("image_url", imageData);
             }
         }
 
@@ -149,6 +150,31 @@ public class OpenAiService {
         }
 
         return trimmedModel;
+    }
+
+    private String normalizeSupportedImageData(String imageData) {
+        if (imageData == null || imageData.isBlank()) {
+            return null;
+        }
+
+        String trimmedImageData = imageData.trim();
+        String lowerImageData = trimmedImageData.toLowerCase(Locale.ROOT);
+        if (lowerImageData.startsWith("http://") || lowerImageData.startsWith("https://")) {
+            return trimmedImageData;
+        }
+
+        if (lowerImageData.startsWith("data:image/jpg;")) {
+            return "data:image/jpeg;" + trimmedImageData.substring("data:image/jpg;".length());
+        }
+
+        if (lowerImageData.startsWith("data:image/jpeg;")
+                || lowerImageData.startsWith("data:image/png;")
+                || lowerImageData.startsWith("data:image/gif;")
+                || lowerImageData.startsWith("data:image/webp;")) {
+            return trimmedImageData;
+        }
+
+        return null;
     }
 
     /**
