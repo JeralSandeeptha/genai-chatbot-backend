@@ -38,16 +38,25 @@ public class GenAiController {
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.setContentType(MediaType.TEXT_PLAIN_VALUE);
 
-        try (PrintWriter writer = response.getWriter()) {
+        PrintWriter writer = response.getWriter();
+        try {
             persistLatestUserMessage(request);
             String assistantContent = openAiServiceStream(request, writer);
             persistAssistantMessage(request, assistantContent);
         } catch (Exception ex) {
             log.error("GenAI chat failed", ex);
+
+            if (response.isCommitted()) {
+                writer.write("\n\n[GenAI chat failed]");
+                writer.flush();
+                return;
+            }
+
             response.resetBuffer();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.getWriter().write("{\"statusCode\":500,\"message\":\"GenAI chat failed\"}");
+            writer.write("{\"statusCode\":500,\"message\":\"GenAI chat failed\"}");
+            writer.flush();
         }
     }
 

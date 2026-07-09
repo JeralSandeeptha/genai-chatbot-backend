@@ -59,14 +59,15 @@ public class OpenAiService {
         // We map chat-like messages into `input`.
         ArrayNode input = payload.putArray("input");
         for (GenAiChatRequest.GenAiMessage msg : request.messages()) {
+            String role = normalizeRole(msg.role());
             ObjectNode item = input.addObject();
-            item.put("role", normalizeRole(msg.role()));
+            item.put("role", role);
 
             ArrayNode content = item.putArray("content");
             String text = msg.content() == null ? "" : msg.content();
             if (!text.isBlank()) {
                 ObjectNode textPart = content.addObject();
-                textPart.put("type", "input_text");
+                textPart.put("type", role.equals("assistant") ? "output_text" : "input_text");
                 textPart.put("text", text);
             }
 
