@@ -20,6 +20,11 @@ public class Message extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String imageData;
 
+    private String documentName;
+
+    @Column(columnDefinition = "TEXT")
+    private String documentText;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "conversation_id", nullable = false)
     private Conversation conversation;

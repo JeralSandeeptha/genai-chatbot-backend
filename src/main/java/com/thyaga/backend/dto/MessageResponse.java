@@ -11,6 +11,8 @@ public record MessageResponse(
         MessageRole role,
         String content,
         String imageData,
+        String documentName,
+        String documentText,
         UUID conversationId,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
@@ -21,6 +23,8 @@ public record MessageResponse(
                 message.getRole(),
                 message.getContent(),
                 message.getImageData(),
+                message.getDocumentName(),
+                message.getDocumentText(),
                 message.getConversation().getId(),
                 message.getCreatedAt(),
                 message.getUpdatedAt()

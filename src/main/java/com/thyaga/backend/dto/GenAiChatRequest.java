@@ -15,7 +15,9 @@ public record GenAiChatRequest(
     public record GenAiMessage(
             @NotBlank String role,
             @NotBlank String content,
-            String imageData
+            String imageData,
+            String documentName,
+            String documentText
     ) {
     }
 }

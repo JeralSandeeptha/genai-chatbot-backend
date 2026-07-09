@@ -64,7 +64,7 @@ public class OpenAiService {
             item.put("role", role);
 
             ArrayNode content = item.putArray("content");
-            String text = msg.content() == null ? "" : msg.content();
+            String text = buildTextForModel(msg);
             if (!text.isBlank()) {
                 ObjectNode textPart = content.addObject();
                 textPart.put("type", role.equals("assistant") ? "output_text" : "input_text");
@@ -150,6 +150,19 @@ public class OpenAiService {
         }
 
         return trimmedModel;
+    }
+
+    private String buildTextForModel(GenAiChatRequest.GenAiMessage msg) {
+        String text = msg.content() == null ? "" : msg.content();
+        if (msg.documentText() == null || msg.documentText().isBlank()) {
+            return text;
+        }
+
+        String documentLabel = msg.documentName() == null || msg.documentName().isBlank()
+                ? "attached document"
+                : msg.documentName();
+
+        return text + "\n\nDocument context (" + documentLabel + "):\n" + msg.documentText();
     }
 
     private String normalizeSupportedImageData(String imageData) {

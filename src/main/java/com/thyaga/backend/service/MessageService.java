@@ -37,6 +37,8 @@ public class MessageService {
         message.setRole(request.role());
         message.setContent(request.content());
         message.setImageData(request.imageData());
+        message.setDocumentName(request.documentName());
+        message.setDocumentText(request.documentText());
         message.setConversation(conversation);
 
         return MessageResponse.from(messageRepository.save(message));
@@ -77,6 +79,14 @@ public class MessageService {
 
         if (request.imageData() != null) {
             message.setImageData(request.imageData());
+        }
+
+        if (request.documentName() != null) {
+            message.setDocumentName(request.documentName());
+        }
+
+        if (request.documentText() != null) {
+            message.setDocumentText(request.documentText());
         }
 
         return MessageResponse.from(messageRepository.save(message));

@@ -84,7 +84,9 @@ public class GenAiController {
                 request.conversationId(),
                 MessageRole.USER,
                 latestMessage.content(),
-                latestMessage.imageData()
+                latestMessage.imageData(),
+                latestMessage.documentName(),
+                latestMessage.documentText()
         ));
     }
 
@@ -98,6 +100,8 @@ public class GenAiController {
                     request.conversationId(),
                     MessageRole.ASSISTANT,
                     assistantContent.trim(),
+                    null,
+                    null,
                     null
             ));
         } catch (Exception ex) {

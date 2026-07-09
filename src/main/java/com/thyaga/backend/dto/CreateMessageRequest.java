@@ -10,5 +10,7 @@ public record CreateMessageRequest(
         @NotNull UUID conversationId,
         @NotNull MessageRole role,
         @NotBlank String content,
-        String imageData
+        String imageData,
+        String documentName,
+        String documentText
 ) {}
