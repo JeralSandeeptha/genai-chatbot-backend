@@ -199,14 +199,15 @@ public class OpenAiService {
         if (typeNode == null) return null;
 
         String type = typeNode.asText("");
-        if (type.endsWith(".delta")) {
+        if (type.endsWith(".delta") || type.toLowerCase(Locale.ROOT).contains("delta")) {
             JsonNode delta = event.get("delta");
             if (delta != null && delta.isTextual()) return delta.asText();
+
+            // fallback for delta events that put the incremental text in `text`
+            JsonNode text = event.get("text");
+            if (text != null && text.isTextual()) return text.asText();
         }
 
-        // fallback for other possible formats
-        JsonNode text = event.get("text");
-        if (text != null && text.isTextual()) return text.asText();
         return null;
     }
 
