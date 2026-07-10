@@ -1,8 +1,0 @@
-[build]
-builder = "NIXPACKS"
-buildCommand = "cd backend && ./gradlew clean bootJar"
-
-[deploy]
-startCommand = "cd backend && java -jar build/libs/app.jar"
-restartPolicyType = "ON_FAILURE"
-restartPolicyMaxRetries = 10
