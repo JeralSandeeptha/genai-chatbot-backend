@@ -4,7 +4,6 @@ import com.thyaga.backend.config.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
 
@@ -91,13 +90,15 @@ public class JwtService {
     }
 
     private byte[] resolveSecretBytes(String secret) {
-        byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
-        if (keyBytes.length >= 32) {
-            return keyBytes;
+        if (secret == null || secret.isBlank()) {
+            throw new IllegalStateException("JWT secret is missing (set JWT_SECRET)");
         }
 
-        return Decoders.BASE64.decode(
-                java.util.Base64.getEncoder().encodeToString(keyBytes)
-        );
+        byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
+        if (keyBytes.length < 32) {
+            throw new IllegalStateException("JWT secret must be at least 32 bytes long");
+        }
+
+        return keyBytes;
     }
 }
